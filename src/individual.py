@@ -1,10 +1,11 @@
-class Individual:
+import src.utils as utils
 
-    def __init__(self, chromosome_size=10):
+
+class Individual:
+    def __init__(self, chromosome=0):
         self.parent1 = None
         self.parent2 = None
-        self.chromosome_size = chromosome_size
-        self.chromosome = 0
+        self.chromosome = chromosome
         self.fitness = 0
         self.metrics = {}
 
@@ -15,12 +16,11 @@ class Individual:
     def add_metric(self, key, val):
         self.metrics[key] = val
 
-    def get_metric(self, key, val):
-        pass
+    def get_metric(self, key):
+        return self.metrics[key]
 
     def gene_active(self, position):
-        temp = 1 << (position - 1)
-        return temp & self.chromosome != 0
+        return utils.bit_set(self.chromosome, position)
 
     def __clear_metrics__(self):
         self.metrics = {}
