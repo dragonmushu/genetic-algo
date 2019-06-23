@@ -3,5 +3,10 @@ def max_binary_value(size):
         return 0
     return 2 ** size - 1
 
-def random_two_elements(elements):
-    return randon
+
+def shift_bytes(val, point):
+    return val >> point
+
+
+def apply_mask(val, mask):
+    return val & mask

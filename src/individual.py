@@ -1,6 +1,3 @@
-import random
-
-
 class Individual:
 
     def __init__(self, chromosome_size = 10):
@@ -27,12 +24,3 @@ class Individual:
     def __clear_metrics__(self):
         self.metrics = {}
 
-
-def generate_random_chromosome(size):
-    if size == 0:
-        return 0
-    return random.randint(0, 2 ** size)
-
-
-def generate_chromosome_from_bits(bits):
-    return int(bits, 2)

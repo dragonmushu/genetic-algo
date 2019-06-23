@@ -1,7 +1,7 @@
 import unittest
 
-from src.genetic_algo import point_cross_over
-from src.genetic_algo import center_cross_over
+from src.crossover import point_cross_over
+from src.crossover import center_cross_over
 import src.utils as utils
 
 
