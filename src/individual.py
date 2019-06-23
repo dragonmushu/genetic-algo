@@ -1,10 +1,13 @@
-#import random
+import random
+
 
 class Individual:
+
     def __init__(self, chromosome_size = 10):
         self.parent1 = None
         self.parent2 = None
         self.chromosome_size = chromosome_size
+        self.chromosome = 0
         self.metrics = {}
 
     def set_parents(self, p1, p2):
@@ -17,9 +20,19 @@ class Individual:
     def get_metric(self, key, val):
         pass
 
+    def gene_active(self, position):
+        temp = 1 << (position - 1)
+        return temp & self.chromosome != 0
+
     def __clear_metrics__(self):
         self.metrics = {}
 
-def generate_random_chromosome(size):
-    return random.randint(0, 2 ** (size - 1) +1)
 
+def generate_random_chromosome(size):
+    if size == 0:
+        return 0
+    return random.randint(0, 2 ** size)
+
+
+def generate_chromosome_from_bits(bits):
+    return int(bits, 2)
