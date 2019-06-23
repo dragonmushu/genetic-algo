@@ -14,7 +14,7 @@ class TestChromosome(unittest.TestCase):
         max_val = 7
         for i in range(0, 10):
             chromosome = generate_random_chromosome(3)
-            self.assertTrue(0 < chromosome < max_val)
+            self.assertTrue(0 <= chromosome <= max_val)
 
     def test_generate_chromosome_from_bits_zero(self):
         chromosome = generate_chromosome_from_bits('000')

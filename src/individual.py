@@ -1,10 +1,11 @@
 class Individual:
 
-    def __init__(self, chromosome_size = 10):
+    def __init__(self, chromosome_size=10):
         self.parent1 = None
         self.parent2 = None
         self.chromosome_size = chromosome_size
         self.chromosome = 0
+        self.fitness = 0
         self.metrics = {}
 
     def set_parents(self, p1, p2):
