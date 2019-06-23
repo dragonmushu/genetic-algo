@@ -2,6 +2,8 @@ import src.crossover as crossover
 import src.utils as utils
 from src.individual import Individual
 from src.chromosome import generate_random_chromosome
+from src.process_types import ProcessTypes
+
 
 class GenGo:
     def __init__(self, chromosome_size=10, population_size=100, population_cutoff=0.5, iterations=100):
@@ -25,11 +27,11 @@ class GenGo:
         return self
 
     def process_individual(self, callback):
-        self.process_callbacks.append(callback)
+        self.process_callbacks.append((callback, ProcessTypes.INDIVIDUAL))
         return self
 
     def process_batch(self, callback):
-        self.process_callbacks.append(callback)
+        self.process_callbacks.append((callback, ProcessTypes.BATCH))
         return self
 
     def fitness(self, callback):
@@ -70,6 +72,11 @@ class GenGo:
     def __default_terminate__(self, individuals):
         return self.current_generation == self.iterations
 
+    # TODO: function needs to be parallelize
+    def parallelize_task_on_individuals(self, callback):
+        for individual in self.current_individuals:
+            callback(individual)
+
     @staticmethod
     def generate_fitness_sorted(individuals):
         return sorted(individuals, key=lambda individual: individual.fitness)
@@ -82,12 +89,14 @@ class GenGo:
             raise Exception('Cannot run without fitness function')
 
         self.initialize_callback()
+        while not self.terminate_callback(self.current_individuals):
+            # perform processing callbacks
+            for process in self.process_callbacks:
+                callback = process[0]
+                process_type = process[1]
+                if process_type is ProcessTypes.INDIVIDUAL:
+                    self.parallelize_task_on_individuals(callback)
+                else:
+                    callback(self.current_individuals)
 
-
-
-
-
-
-
-
-
+            # perform fitness callbacks
