@@ -21,4 +21,6 @@ def bit_set(val, position):
 
 
 def random_two_elements(elements):
+    if len(elements) < 2:
+        raise Exception('List size less than two')
     return random.sample(elements, 2)
