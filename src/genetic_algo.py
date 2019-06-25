@@ -15,7 +15,7 @@ class GenGo:
         self.current_individuals = []
 
         self.initialize_callback = self.__default_initialize__
-        self.process_callbacks = []  # two possible types of process callbacks
+        self.process_callback = None
         self.fitness_callback = None
         self.select_generation_callback = self.__default_select_generation__
         self.select_parents_callback = self.__default_select_parents__
@@ -27,12 +27,15 @@ class GenGo:
         return self
 
     def process_individual(self, callback):
-        self.process_callbacks.append((callback, ProcessTypes.INDIVIDUAL))
+        self.process_callback = (callback, ProcessTypes.INDIVIDUAL)
         return self
 
     def process_batch(self, callback):
-        self.process_callbacks.append((callback, ProcessTypes.BATCH))
+        self.process_callback = (callback, ProcessTypes.BATCH)
         return self
+
+    def process_batch(self, callback, n):
+        pass
 
     def fitness(self, callback):
         self.fitness_callback = callback
@@ -72,10 +75,18 @@ class GenGo:
     def __default_terminate__(self, individuals):
         return self.current_generation == self.iterations
 
-    # TODO: function needs to be parallelize
-    def parallelize_task_on_individuals(self, callback):
+    def __run_process_callback__(self):
+        process_type = self.process_callback[1]
+        process_callback = self.process_callback
+        if process_type == ProcessTypes.INDIVIDUAL:
+            for individual in self.current_individuals:
+                process_callback(individual)
+        else:
+            process_callback(self.current_individuals)
+
+    def __run_fitness_callback__(self):
         for individual in self.current_individuals:
-            callback(individual)
+            individual.fitness = self.fitness_callback(individual)
 
     @staticmethod
     def generate_fitness_sorted(individuals):
@@ -90,13 +101,16 @@ class GenGo:
 
         self.initialize_callback()
         while not self.terminate_callback(self.current_individuals):
-            # perform processing callbacks
-            for process in self.process_callbacks:
-                callback = process[0]
-                process_type = process[1]
-                if process_type is ProcessTypes.INDIVIDUAL:
-                    self.parallelize_task_on_individuals(callback)
-                else:
-                    callback(self.current_individuals)
+            # perform process callback
+            self.__run_process_callback__()
 
             # perform fitness callbacks
+            self.__run_fitness_callback__()
+
+            # sort generation based on fitness value
+            self.current_individuals = self.generate_fitness_sorted(self.current_individuals)
+
+            # perform generation selection
+            self.current_individuals = self.select_generation_callback(self.current_individuals)
+
+            # perform parent selection and crossover

@@ -3,4 +3,5 @@ from enum import Enum
 
 class ProcessTypes(Enum):
     BATCH = 1
-    INDIVIDUAL = 2
+    BATCH_SIZE = 2
+    INDIVIDUAL = 3
