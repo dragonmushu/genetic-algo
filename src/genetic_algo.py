@@ -88,6 +88,24 @@ class GenGo:
         for individual in self.current_individuals:
             individual.fitness = self.fitness_callback(individual)
 
+    def __run_create_next_generation__(self):
+        next_generation = []
+        while len(next_generation) != self.population_size:
+            parents = self.select_parents_callback(self.current_individuals)
+            if len(parents) != 2:
+                raise Exception('Parent selection must return two individuals')
+            chromosomes = self.crossover_callback(*parents)
+            current_index = 0
+            while current_index < len(chromosomes) and len(next_generation) != self.population_size:
+                chromosome = chromosomes[current_index]
+                if not 0 < chromosome < utils.max_binary_value(self.chromosome_size):
+                    raise Exception('Chromosomes generated must be between within max chromosome value')
+                individual = Individual(chromosome[current_index])
+                individual.set_parents(*parents)
+                next_generation.append(individual)
+                current_index += 1
+        return next_generation
+
     @staticmethod
     def generate_fitness_sorted(individuals):
         return sorted(individuals, key=lambda individual: individual.fitness)
@@ -114,3 +132,4 @@ class GenGo:
             self.current_individuals = self.select_generation_callback(self.current_individuals)
 
             # perform parent selection and crossover
+            self.current_individuals = self.__run_create_next_generation__()
