@@ -1,10 +1,12 @@
 import src.utils as utils
+from src.chromosome import chromosome_subset_value
 
 
 class Individual:
-    def __init__(self, chromosome=0):
+    def __init__(self, chromosome_size, chromosome=0):
         self.parent1 = None
         self.parent2 = None
+        self.chromosome_size = chromosome_size
         self.chromosome = chromosome
         self.fitness = 0
         self.metrics = {}
@@ -27,7 +29,14 @@ class Individual:
         return self.metrics[key][0]
 
     def gene_active(self, position):
+        if not 1 <= position <= self.chromosome_size:
+            raise ValueError()
         return utils.bit_set(self.chromosome, position)
+
+    def gene_value(self, start_position, end_position):
+        if not 0 <= start_position <= end_position <= self.chromosome_size:
+            raise ValueError()
+        return chromosome_subset_value(self.chromosome, start_position, end_position - start_position + 1)
 
     def clear_metrics(self):
         self.metrics = {}

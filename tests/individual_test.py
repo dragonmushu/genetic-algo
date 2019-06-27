@@ -5,7 +5,7 @@ from src.individual import Individual
 class TestIndividual(unittest.TestCase):
 
     def setUp(self):
-        self.individual = Individual()
+        self.individual = Individual(chromosome_size=10, chromosome=0)
 
     def test_add_metric_value(self):
         key = 'metric'

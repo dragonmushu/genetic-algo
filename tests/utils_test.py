@@ -45,9 +45,19 @@ class TestUtils(unittest.TestCase):
         position = 2
         self.assertFalse(utils.bit_set(chromosome, position))
 
-    def test_bit_set(self):
-        chromosome = 5
+    def test_bit_set_final(self):
+        chromosome = 10
+        position = 4
+        self.assertTrue(utils.bit_set(chromosome, position))
+
+    def test_bit_set_initial(self):
+        chromosome = 9
         position = 1
+        self.assertTrue(utils.bit_set(chromosome, position))
+
+    def test_bit_set_middle(self):
+        chromosome = 18
+        position = 2
         self.assertTrue(utils.bit_set(chromosome, position))
 
     def test_bit_not_set(self):
