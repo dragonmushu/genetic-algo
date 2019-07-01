@@ -2,6 +2,7 @@ import tkinter as tk
 from examples.obstacle_avoiding.obstacle_avoid import *
 
 
+# setup functions
 def setup_window():
     window = tk.Tk()
     window.title('Obstacle Avoiding')
@@ -20,6 +21,7 @@ def setup_obstacles(frame, obstacles, gui_objects):
     add_gui_object(obstacles[-1], new_obstacle_object, gui_objects)
 
 
+# update functions
 def update_gui_objects(frame, gui_objects):
     for game_object, gui_object in gui_objects.items():
         frame.move(gui_object, *game_object.delta_position())
@@ -33,6 +35,10 @@ def add_gui_object(game_object, gui_object, gui_objects):
     gui_objects[game_object] = gui_object
 
 
+def remove_gui_object(game_object, gui_objects):
+    del gui_objects[game_object]
+
+
 def run_main_loop(window, frame):
     delta = 0
     obstacle_addition_delta = 0
@@ -44,11 +50,22 @@ def run_main_loop(window, frame):
 
     # initial setup of players
 
+    # main loop
     while True:
         start_time = time.time()
 
         # update obstacles
         update_all_obstacles(obstacles, delta)
+        if check_to_add_obstacle(obstacles, obstacle_addition_delta):
+            obstacle = add_new_obstacle_to_list(obstacles)
+            gui_object = create_rectangle_object(frame, obstacle)
+            add_gui_object(obstacle, gui_object, gui_objects)
+            obstacle_addition_delta -= OBSTACLE_ADDITION_PERIOD
+        if check_to_remove_obstacle(obstacles):
+            obstacle = obstacles.pop()
+            remove_gui_object(obstacle, gui_objects)
+
+        # update players
 
 
         # update window and frame
@@ -57,14 +74,15 @@ def run_main_loop(window, frame):
         window.update()
 
         # update game thread
-        # print(delta)
         delta = time.time() - start_time
+        if delta < 0:
+            delta = 0
         time.sleep(TIME_GAP_IN_SECONDS - delta)
         delta = time.time() - start_time
+        obstacle_addition_delta += delta
 
 
 if __name__ == '__main__':
     window = setup_window()
     frame = setup_frame(window)
-    o1 = Obstacle()
     run_main_loop(window, frame)
