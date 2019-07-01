@@ -8,7 +8,7 @@ TIME_GAP_IN_SECONDS = 1/FPS  # gap between successive frames in seconds
 
 OBSTACLE_WIDTH = 80
 OBSTACLE_HEIGHT = 10
-OBSTACLE_SPEED = 5  # pixels per second
+OBSTACLE_SPEED = 20  # pixels per second
 OBSTACLE_ADDITION_PERIOD =  4  # seconds between obstacle addition
 
 PLAYER_CHROMOSOME_LENGTH = 48

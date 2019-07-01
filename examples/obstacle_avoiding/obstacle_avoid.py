@@ -31,15 +31,21 @@ def setup_players(individuals):
     players = [Player((0)) for individual in individuals]
 
 
+def setup_obstacles(obstacles):
+    add_new_obstacle_to_list()
+
+
 def process_generation(individuals):
     pass
 
 
 def run_main_loop():
     delta = 0
+    obstacle_addition_delta = 0
+    obstacles = []
+    add_new_obstacle_to_list(obstacles)
     while True:
         start_time = time.time()
-        print(delta)
         delta = time.time() - start_time
         time.sleep(TIME_GAP_IN_SECONDS - delta)
         delta = time.time() - start_time
