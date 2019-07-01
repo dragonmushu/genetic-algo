@@ -1,55 +1,48 @@
-import random
 import time
 
+from examples.obstacle_avoiding.player import Player
+from examples.obstacle_avoiding.obstacle import Obstacle
 from examples.obstacle_avoiding.obstace_avoid_constants import *
 
 
-all_rectangles = []
+def update_all_players(players, obstacles, delta):
+    for player in players:
+        player.update(delta, obstacles)
 
 
-def update_player_position(total_delta):
-    pass
+def update_all_obstacles(obstacles, delta):
+    for obstacle in obstacles:
+        obstacle.update(delta)
 
 
-def add_new_rectangle_to_list(total_delta):
-    all_rectangles.append(random_rectangle_at_top())
+def check_and_remove_obstacle(obstacles):
+    if obstacles[-1].is_past_frame():
+        obstacles.pop()
 
 
-def update_all_rectangle_positions(total_delta):
-    pixels_moved = int(total_delta * RECTANGLE_HEIGHT_SPEED)
-    for index, rectangle in enumerate(all_rectangles):
-        all_rectangles[index] = (rectangle[0], rectangle[1] + pixels_moved, rectangle[3], rectangle[4] +
-                                 pixels_moved)
-
-
-def check_and_remove_rectangle():
-    if all_rectangles[-1][1] >= FRAME_HEIGHT:
-        all_rectangles.pop()
-
-
-def random_rectangle_at_top():
-    x_location = int(random.random()*FRAME_WIDTH - RECTANGLE_WIDTH/2)
-    y_location = 0
-    return x_location, y_location, x_location + RECTANGLE_WIDTH, y_location + RECTANGLE_HEIGHT
+def add_new_obstacle_to_list(obstacles):
+    obstacles.append(Obstacle())
 
 
 '''
 Processing Functions
 '''
+def setup_players(individuals):
+    players = [Player((0)) for individual in individuals]
+
+
 def process_generation(individuals):
     pass
 
 
 def run_main_loop():
-    total_delta = 0
+    delta = 0
     while True:
         start_time = time.time()
-        update_all_rectangle_positions(total_delta)
-
-        check_and_remove_rectangle()
+        print(delta)
         delta = time.time() - start_time
         time.sleep(TIME_GAP_IN_SECONDS - delta)
-        total_delta += time.time() - start_time
+        delta = time.time() - start_time
 
 
 if __name__ == '__main__':
