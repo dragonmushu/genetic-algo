@@ -34,7 +34,7 @@ class Individual:
         return utils.bit_set(self.chromosome, position)
 
     def gene_value(self, start_position, end_position):
-        if not 0 <= start_position <= end_position <= self.chromosome_size:
+        if not 1 <= start_position <= end_position <= self.chromosome_size:
             raise ValueError()
         return chromosome_subset_value(self.chromosome, start_position, end_position - start_position + 1)
 

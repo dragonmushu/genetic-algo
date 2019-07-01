@@ -18,3 +18,4 @@ def chromosome_subset_value(chromosome, start, length):
     shifted_chromosome = utils.shift_bytes(chromosome, start - 1)
     mask = utils.max_binary_value(length)
     return utils.apply_mask(shifted_chromosome, mask)
+
