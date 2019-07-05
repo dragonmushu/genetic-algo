@@ -21,7 +21,7 @@ def update_gui_objects(frame, gui_objects):
         gui_object.update_gui_object(frame)
 
 
-if __name__ == '__main__':
+def setup_gui():
     window = setup_window()
     frame = setup_frame(window)
-    run_main_loop(window, frame)
+    return window, frame

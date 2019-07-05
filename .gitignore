@@ -1,0 +1,8 @@
+
+*.pyc
+*.json
+*.xml
+*.iml
+*.sqlite
+*.txt
+.vs/genetic-algo/v16/.suo

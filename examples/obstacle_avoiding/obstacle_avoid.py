@@ -78,11 +78,12 @@ def update_all_players(players, obstacles, delta):
         player.update(delta, obstacles)
 
 
-def check_and_update_players(frame, players, obstacle):
+def check_and_update_players(frame, players, obstacle, total_time):
     new_players = []
     for player in players:
         if player.check_hit_wall() or player.check_hit_obstacle(obstacle):
             player.delete_gui_object(frame)
+            player.individual.add_metric("time", total_time)
         else:
             new_players.append(player)
     return new_players
@@ -105,27 +106,14 @@ def check_to_add_obstacle(total_delta):
     return False
 
 
-# processing functions
-def process_generation(individuals):
-    pass
-
-
-def run_main_loop(window=None, frame=None):
+def run_main_loop(players, window=None, frame=None):
     total_time = 0
     delta = 0
     obstacle_addition_delta = 0
 
     # initial setup of obstacles
     obstacles = setup_obstacles(frame=frame)
-
-    # initial setup of players
-    individuals = []
-    for _ in range(0, 5):
-        individual = Individual(PLAYER_CHROMOSOME_LENGTH,
-                                chromosome=generate_random_chromosome(PLAYER_CHROMOSOME_LENGTH))
-        individuals.append(individual)
-    players = setup_players(individuals, frame=frame)
-
+    print(players)
     # main loop
     while True:
         start_time = time.time()
@@ -142,7 +130,7 @@ def run_main_loop(window=None, frame=None):
 
         # update player
         update_all_players(players, obstacles, delta)
-        players = check_and_update_players(frame, players, obstacles[0])
+        players = check_and_update_players(frame, players, obstacles[0], total_time)
 
         # break loop when players are all
         if not players:
@@ -168,5 +156,4 @@ def run_main_loop(window=None, frame=None):
         total_time += delta
 
 
-if __name__ == '__main__':
-    run_main_loop()
+#

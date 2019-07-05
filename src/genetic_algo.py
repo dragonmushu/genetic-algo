@@ -30,12 +30,9 @@ class GenGo:
         self.process_callback = (callback, ProcessTypes.INDIVIDUAL)
         return self
 
-    def process_batch(self, callback):
+    def process_batch(self, callback, n=0):
         self.process_callback = (callback, ProcessTypes.BATCH)
         return self
-
-    def process_batch(self, callback, n):
-        pass
 
     def fitness(self, callback):
         self.fitness_callback = callback
@@ -57,7 +54,7 @@ class GenGo:
         self.terminate_callback = callback
         return self
 
-    def __default_initialize_callback(self):
+    def __default_initialize__(self):
         individuals = [Individual(generate_random_chromosome(self.chromosome_size))
                        for _ in range(self.population_size)]
         return individuals
@@ -77,7 +74,7 @@ class GenGo:
 
     def __run_process_callback__(self):
         process_type = self.process_callback[1]
-        process_callback = self.process_callback
+        process_callback = self.process_callback[0]
         if process_type == ProcessTypes.INDIVIDUAL:
             for individual in self.current_individuals:
                 process_callback(individual)
@@ -117,7 +114,7 @@ class GenGo:
         if not self.fitness_callback:
             raise Exception('Cannot run without fitness function')
 
-        self.initialize_callback()
+        self.current_individuals = self.initialize_callback()
         while not self.terminate_callback(self.current_individuals):
             # perform process callback
             self.__run_process_callback__()
