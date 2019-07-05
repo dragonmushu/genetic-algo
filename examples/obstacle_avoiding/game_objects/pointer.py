@@ -19,7 +19,11 @@ class Pointer(GameObject):
         self.direction = direction
         self.color = "green"
 
-    def update(self, rectangles):
+    def update(self, delta, total_speed):
+        self.previous_x = self.current_x
+        self.current_x += total_speed*delta
+
+    def update_influence(self, rectangles):
         self.speed_influence = 0
         self.color = "green"
         if self.check_pointer_hit_rectangle(rectangles):
@@ -38,7 +42,6 @@ class Pointer(GameObject):
             # left segment
             constant = [rectangle.current_x, rectangle.current_y]
             vector = [0, rectangle.height]
-            print(constant, vector)
             if self.__line_segments_intersect__(pointer_const, pointer_vector, constant, vector):
                 return True
             # right segment
@@ -64,4 +67,5 @@ class Pointer(GameObject):
         self.gui_object = frame.create_line(*self.current_location(), fill=self.color, width="2")
 
     def update_gui_object(self, frame):
+        GameObject.update_gui_object(self, frame)
         frame.itemconfig(self.gui_object, fill=self.color)

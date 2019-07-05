@@ -20,7 +20,7 @@ If the pointer is activated the box will move in a certain direction
 
 angle: 180 (8 bits) val/255*180
 length: 40-150 (7 bits) val/127*110 + 40
-speed: 0-7 (3 bits)
+speed: 0-15 (4 bits)
 direction: 0-1 (1 bit)
 
 3 pointers: 3*(8 + 7 + 3 + 1) = 57
@@ -46,7 +46,7 @@ def parse_genes(individual):
 
 
 def create_player(individual, frame=None):
-    player = Player(*parse_genes(individual))
+    player = Player(*parse_genes(individual), individual)
     if frame is not None:
         player.create_gui_object(frame)
     return player
@@ -78,6 +78,16 @@ def update_all_players(players, obstacles, delta):
         player.update(delta, obstacles)
 
 
+def check_and_update_players(frame, players, obstacle):
+    new_players = []
+    for player in players:
+        if player.check_hit_wall() or player.check_hit_obstacle(obstacle):
+            player.delete_gui_object(frame)
+        else:
+            new_players.append(player)
+    return new_players
+
+
 def update_all_obstacles(obstacles, delta):
     for obstacle in obstacles:
         obstacle.update(delta)
@@ -101,6 +111,7 @@ def process_generation(individuals):
 
 
 def run_main_loop(window=None, frame=None):
+    total_time = 0
     delta = 0
     obstacle_addition_delta = 0
 
@@ -108,8 +119,12 @@ def run_main_loop(window=None, frame=None):
     obstacles = setup_obstacles(frame=frame)
 
     # initial setup of players
-    individual = Individual(PLAYER_CHROMOSOME_LENGTH, chromosome=generate_random_chromosome(PLAYER_CHROMOSOME_LENGTH))
-    players = setup_players([individual], frame=frame)
+    individuals = []
+    for _ in range(0, 5):
+        individual = Individual(PLAYER_CHROMOSOME_LENGTH,
+                                chromosome=generate_random_chromosome(PLAYER_CHROMOSOME_LENGTH))
+        individuals.append(individual)
+    players = setup_players(individuals, frame=frame)
 
     # main loop
     while True:
@@ -127,6 +142,14 @@ def run_main_loop(window=None, frame=None):
 
         # update player
         update_all_players(players, obstacles, delta)
+        players = check_and_update_players(frame, players, obstacles[0])
+
+        # break loop when players are all
+        if not players:
+            if window is not None:
+                window.destroy()
+            print(total_time)
+            return
 
         # update gui if window created
         if window is not None and frame is not None:
@@ -142,6 +165,7 @@ def run_main_loop(window=None, frame=None):
         time.sleep(sleep_time)
         delta = time.time() - start_time
         obstacle_addition_delta += delta
+        total_time += delta
 
 
 if __name__ == '__main__':
