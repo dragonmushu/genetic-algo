@@ -14,7 +14,7 @@ class GameObject:
     def delta_position(self):
         return self.current_x - self.previous_x, self.current_y - self.previous_y
 
-    def move_gui_object(self, frame):
+    def update_gui_object(self, frame):
         frame.move(self.gui_object, *self.delta_position())
 
     def delete_gui_object(self, frame):

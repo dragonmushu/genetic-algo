@@ -18,7 +18,7 @@ def setup_frame(window):
 # update functions
 def update_gui_objects(frame, gui_objects):
     for gui_object in gui_objects:
-        gui_object.move_gui_object(frame)
+        gui_object.update_gui_object(frame)
 
 
 if __name__ == '__main__':

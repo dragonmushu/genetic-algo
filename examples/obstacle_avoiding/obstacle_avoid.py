@@ -26,28 +26,23 @@ direction: 0-1 (1 bit)
 3 pointers: 3*(8 + 7 + 3 + 1) = 57
 Player dies when an obstacle hits it
 '''
+
+
 # setup functions
 def parse_genes(individual):
     current_gene = 1
-    angle1 = individual.gene_value(current_gene, current_gene + ANGLE_GENE_SIZE - 1)
-    angle2 = individual.gene_value(current_gene + ANGLE_GENE_SIZE - 1, current_gene + 2 * ANGLE_GENE_SIZE - 1)
-    angle3 = individual.gene_value(current_gene + 2 * ANGLE_GENE_SIZE - 1, current_gene + 3 * ANGLE_GENE_SIZE - 1)
-    current_gene += 3 * ANGLE_GENE_SIZE - 1
-    length1 = individual.gene_value(current_gene, current_gene + LENGTH_GENE_SIZE - 1)
-    length2 = individual.gene_value(current_gene + LENGTH_GENE_SIZE - 1, current_gene + 2 * LENGTH_GENE_SIZE - 1)
-    length3 = individual.gene_value(current_gene + 2 * LENGTH_GENE_SIZE - 1, current_gene + 3 * LENGTH_GENE_SIZE - 1)
-    current_gene += 3 * LENGTH_GENE_SIZE - 1
-    speed1 = individual.gene_value(current_gene, current_gene + SPEED_GENE_SIZE - 1)
-    speed2 = individual.gene_value(current_gene + SPEED_GENE_SIZE - 1, current_gene + 2 * SPEED_GENE_SIZE - 1)
-    speed3 = individual.gene_value(current_gene + 2 * SPEED_GENE_SIZE - 1, current_gene + 3 * LENGTH_GENE_SIZE - 1)
-    current_gene += 3 * SPEED_GENE_SIZE - 1
-    direction1 = individual.gene_value(current_gene, current_gene + DIRECTION_GENE_SIZE - 1)
-    direction2 = individual.gene_value(current_gene + DIRECTION_GENE_SIZE - 1,
-                                       current_gene + 2 * DIRECTION_GENE_SIZE - 1)
-    direction3 = individual.gene_value(current_gene + 2 * DIRECTION_GENE_SIZE - 1,
-                                       current_gene + 3 * DIRECTION_GENE_SIZE - 1)
-    return ((angle1, angle2, angle3), (length1, length2, length3), (speed1, speed2, speed3),
-            (direction1, direction2, direction3))
+    angles = [individual.gene_value(current_gene + i * ANGLE_GENE_SIZE, current_gene +
+                                    (i + 1) * ANGLE_GENE_SIZE - 1) for i in range(0, PLAYER_POINTERS)]
+    current_gene += PLAYER_POINTERS * ANGLE_GENE_SIZE
+    lengths = [individual.gene_value(current_gene + i * LENGTH_GENE_SIZE, current_gene +
+                                     (i + 1) * LENGTH_GENE_SIZE - 1) for i in range(0, PLAYER_POINTERS)]
+    current_gene += PLAYER_POINTERS * LENGTH_GENE_SIZE
+    speeds = [individual.gene_value(current_gene + i * SPEED_GENE_SIZE, current_gene +
+                                    (i + 1) * SPEED_GENE_SIZE - 1) for i in range(0, PLAYER_POINTERS)]
+    current_gene += PLAYER_POINTERS * SPEED_GENE_SIZE
+    directions = [individual.gene_value(current_gene + i * DIRECTION_GENE_SIZE, current_gene +
+                                        (i + 1) * DIRECTION_GENE_SIZE - 1) for i in range(0, PLAYER_POINTERS)]
+    return angles, lengths, speeds, directions
 
 
 def create_player(individual, frame=None):
@@ -113,8 +108,8 @@ def run_main_loop(window=None, frame=None):
     obstacles = setup_obstacles(frame=frame)
 
     # initial setup of players
-    #individual = Individual(PLAYER_CHROMOSOME_LENGTH, chromosome=generate_random_chromosome(PLAYER_CHROMOSOME_LENGTH))
-    #players = setup_players([individual], frame=frame)
+    individual = Individual(PLAYER_CHROMOSOME_LENGTH, chromosome=generate_random_chromosome(PLAYER_CHROMOSOME_LENGTH))
+    players = setup_players([individual], frame=frame)
 
     # main loop
     while True:
@@ -130,9 +125,13 @@ def run_main_loop(window=None, frame=None):
             if frame is not None:
                 obstacle.delete_gui_object(frame)
 
+        # update player
+        update_all_players(players, obstacles, delta)
+
         # update gui if window created
         if window is not None and frame is not None:
             update_gui_objects(frame, obstacles)
+            update_gui_objects(frame, players)
             window.update_idletasks()
             window.update()
 
@@ -141,7 +140,6 @@ def run_main_loop(window=None, frame=None):
         if sleep_time < 0:
             sleep_time = 0
         time.sleep(sleep_time)
-        print(len(obstacles))
         delta = time.time() - start_time
         obstacle_addition_delta += delta
 

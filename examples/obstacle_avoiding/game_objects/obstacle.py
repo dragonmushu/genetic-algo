@@ -17,4 +17,4 @@ class Obstacle(GameObject):
         return self.current_y >= FRAME_HEIGHT
 
     def create_gui_object(self, frame):
-        self.gui_object = frame.create_rectangle(*self.current_location())
+        self.gui_object = frame.create_rectangle(*self.current_location(), fill="red", outline="red")

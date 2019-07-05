@@ -8,16 +8,21 @@ class Player(GameObject):
         GameObject.__init__(self, int(FRAME_WIDTH / 2 - PLAYER_WIDTH / 2), FRAME_HEIGHT - PLAYER_HEIGHT,
                             int(FRAME_WIDTH / 2 - PLAYER_WIDTH / 2) + PLAYER_WIDTH, FRAME_HEIGHT)
         self.pointers = [Pointer(pointer_angles[i], pointer_lengths[i], speeds[i], directions[i]) for i in range(0, 3)]
+        self.current_speed = 0
 
     def update(self, delta, obstacles):
-        pass
+        if len(obstacles) >= 2:
+            rectangles = [obstacles[i] for i in range(0, 2)]
+            for pointer in self.pointers:
+                pointer.update(rectangles)
+                self.current_speed += pointer.speed_influence
 
     def create_gui_object(self, frame):
         for pointer in self.pointers:
             pointer.create_gui_object(frame)
-        self.gui_object = frame.create_rectangle(*self.current_location())
+        self.gui_object = frame.create_rectangle(*self.current_location(), fill="black", outline="red")
 
-    def move_gui_object(self, frame):
-        frame.move(*self.delta_position())
+    def update_gui_object(self, frame):
+        frame.move(self.gui_object, *self.delta_position())
         for pointer in self.pointers:
-            pointer.move_gui_object(frame)
+            pointer.update_gui_object(frame)
