@@ -16,7 +16,7 @@ class Pointer(GameObject):
                             y1 - self.length * math.sin(self.angle))
         self.speed = speed
         self.speed_influence = 0
-        self.direction = direction
+        self.direction = direction * -2 + 1
         self.color = "green"
 
     def update(self, delta, total_speed):
@@ -26,9 +26,9 @@ class Pointer(GameObject):
     def update_influence(self, rectangles):
         self.speed_influence = 0
         self.color = "green"
-        if self.check_pointer_hit_rectangle(rectangles):
+        if self.check_pointer_hit_walls() or self.check_pointer_hit_rectangle(rectangles):
             self.color = "red"
-            self.speed_influence = self.speed
+            self.speed_influence = self.direction * self.speed * SPEED_FACTOR
 
     def check_pointer_hit_rectangle(self, rectangles):
         pointer_const = [self.current_x, self.current_y]
@@ -50,6 +50,9 @@ class Pointer(GameObject):
             if self.__line_segments_intersect__(pointer_const, pointer_vector, constant, vector):
                 return True
         return False
+
+    def check_pointer_hit_walls(self):
+        return self.current_x + self.width <= 0 or self.current_x + self.width >= FRAME_WIDTH
 
     @staticmethod
     def __line_segments_intersect__(constant_1, vector_1, constant_2, vector_2):

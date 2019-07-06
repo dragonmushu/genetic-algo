@@ -30,7 +30,7 @@ class GenGo:
         self.process_callback = (callback, ProcessTypes.INDIVIDUAL)
         return self
 
-    def process_batch(self, callback, n=0):
+    def process_batch(self, callback):
         self.process_callback = (callback, ProcessTypes.BATCH)
         return self
 
@@ -55,7 +55,7 @@ class GenGo:
         return self
 
     def __default_initialize__(self):
-        individuals = [Individual(generate_random_chromosome(self.chromosome_size))
+        individuals = [Individual(self.chromosome_size, generate_random_chromosome(self.chromosome_size))
                        for _ in range(self.population_size)]
         return individuals
 
@@ -97,7 +97,7 @@ class GenGo:
                 chromosome = chromosomes[current_index]
                 if not 0 < chromosome < utils.max_binary_value(self.chromosome_size):
                     raise Exception('Chromosomes generated must be between within max chromosome value')
-                individual = Individual(chromosome[current_index])
+                individual = Individual(self.chromosome_size, chromosome)
                 individual.set_parents(*parents)
                 next_generation.append(individual)
                 current_index += 1
@@ -116,6 +116,8 @@ class GenGo:
 
         self.current_individuals = self.initialize_callback()
         while not self.terminate_callback(self.current_individuals):
+            print("Generation: ", self.current_generation)
+
             # perform process callback
             self.__run_process_callback__()
 
@@ -130,3 +132,5 @@ class GenGo:
 
             # perform parent selection and crossover
             self.current_individuals = self.__run_create_next_generation__()
+
+            self.current_generation += 1

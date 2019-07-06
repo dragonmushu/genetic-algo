@@ -12,9 +12,8 @@ class Player(GameObject):
         self.current_speed = 0
 
     def update(self, delta, obstacles):
-        if len(obstacles) >= 2:
-            rectangles = [obstacles[i] for i in range(0, 2)]
-            self.current_speed = 0
+        if len(obstacles) >= 3:
+            rectangles = [obstacles[i] for i in range(0, 3)]
             for pointer in self.pointers:
                 pointer.update_influence(rectangles)
                 self.current_speed += pointer.speed_influence

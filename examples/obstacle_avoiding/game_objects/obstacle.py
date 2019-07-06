@@ -11,7 +11,7 @@ class Obstacle(GameObject):
 
     def update(self, delta):
         self.previous_y = self.current_y
-        self.current_y += delta*OBSTACLE_SPEED
+        self.current_y += delta*OBSTACLE_SPEED*SPEED_FACTOR
 
     def is_past_frame(self):
         return self.current_y >= FRAME_HEIGHT

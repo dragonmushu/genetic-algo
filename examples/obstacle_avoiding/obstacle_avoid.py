@@ -5,11 +5,6 @@ from examples.obstacle_avoiding.game_objects.obstacle import Obstacle
 from examples.obstacle_avoiding.obstace_avoid_constants import *
 from examples.obstacle_avoiding.obstacle_avoid_gui import update_gui_objects
 
-from src.individual import Individual
-from src.chromosome import generate_random_chromosome
-
-
-
 '''
 Genetic Algorithm Explanation:
 
@@ -78,11 +73,12 @@ def update_all_players(players, obstacles, delta):
         player.update(delta, obstacles)
 
 
-def check_and_update_players(frame, players, obstacle, total_time):
+def check_and_update_players(players, obstacle, total_time, frame=None):
     new_players = []
     for player in players:
         if player.check_hit_wall() or player.check_hit_obstacle(obstacle):
-            player.delete_gui_object(frame)
+            if frame is not None:
+                player.delete_gui_object(frame)
             player.individual.add_metric("time", total_time)
         else:
             new_players.append(player)
@@ -113,7 +109,6 @@ def run_main_loop(players, window=None, frame=None):
 
     # initial setup of obstacles
     obstacles = setup_obstacles(frame=frame)
-    print(players)
     # main loop
     while True:
         start_time = time.time()
@@ -130,7 +125,7 @@ def run_main_loop(players, window=None, frame=None):
 
         # update player
         update_all_players(players, obstacles, delta)
-        players = check_and_update_players(frame, players, obstacles[0], total_time)
+        players = check_and_update_players(players, obstacles[0], total_time, frame=frame)
 
         # break loop when players are all
         if not players:

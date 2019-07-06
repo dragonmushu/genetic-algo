@@ -1,3 +1,5 @@
+SPEED_FACTOR = 5
+
 PLAYER_WIDTH = 10
 PLAYER_HEIGHT = 10
 
@@ -9,7 +11,7 @@ TIME_GAP_IN_SECONDS = 1/FPS  # gap between successive frames in seconds
 OBSTACLE_WIDTH = 80
 OBSTACLE_HEIGHT = 10
 OBSTACLE_SPEED = 20  # pixels per second
-OBSTACLE_ADDITION_PERIOD = 4  # seconds between obstacle addition
+OBSTACLE_ADDITION_PERIOD = 4/SPEED_FACTOR  # seconds between obstacle addition
 
 PLAYER_CHROMOSOME_LENGTH = 60
 PLAYER_POINTERS = 3
@@ -17,4 +19,3 @@ ANGLE_GENE_SIZE = 8
 LENGTH_GENE_SIZE = 7
 SPEED_GENE_SIZE = 4
 DIRECTION_GENE_SIZE = 1
-
