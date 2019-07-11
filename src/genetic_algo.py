@@ -6,13 +6,15 @@ from src.process_types import ProcessTypes
 
 
 class GenGo:
-    def __init__(self, chromosome_size=10, population_size=100, population_cutoff=0.5, iterations=100):
+    def __init__(self, chromosome_size=10, population_size=100, population_cutoff=0.5, iterations=100,
+                 print_generation_info=True):
         self.chromosome_size = chromosome_size
         self.population_size = population_size
         self.population_cutoff = population_cutoff
         self.iterations = iterations
         self.current_generation = 0
         self.current_individuals = []
+        self.print_generation_info = print_generation_info
 
         self.initialize_callback = self.__default_initialize__
         self.process_callback = None
@@ -60,8 +62,8 @@ class GenGo:
         return individuals
 
     def __default_select_generation__(self, individuals):
-        # assumes individuals have been sorted before call
-        return individuals[: int(len(individuals)*self.population_cutoff)]
+        individuals = self.generate_fitness_sorted(self.current_individuals)
+        return individuals[int(len(individuals)*self.population_cutoff) + 1:]
 
     def __default_select_parents__(self, individuals):
         return utils.random_two_elements(individuals)
@@ -95,7 +97,7 @@ class GenGo:
             current_index = 0
             while current_index < len(chromosomes) and len(next_generation) != self.population_size:
                 chromosome = chromosomes[current_index]
-                if not 0 < chromosome < utils.max_binary_value(self.chromosome_size):
+                if not 0 <= chromosome <= utils.max_binary_value(self.chromosome_size):
                     raise Exception('Chromosomes generated must be between within max chromosome value')
                 individual = Individual(self.chromosome_size, chromosome)
                 individual.set_parents(*parents)
@@ -103,9 +105,25 @@ class GenGo:
                 current_index += 1
         return next_generation
 
+    def __print_generation_info__(self):
+        print("Generation: ", self.current_generation)
+        print("Max Fit Individual: ")
+        print(self.max_fitness_individual(self.current_individuals))
+        print("Min Fit Individual: ")
+        print(self.min_fitness_individual(self.current_individuals))
+        print("\n")
+
     @staticmethod
     def generate_fitness_sorted(individuals):
         return sorted(individuals, key=lambda individual: individual.fitness)
+
+    @staticmethod
+    def max_fitness_individual(individuals):
+        return max(individuals, key=lambda individual: individual.fitness)
+
+    @staticmethod
+    def min_fitness_individual(individuals):
+        return min(individuals, key=lambda individual: individual.fitness)
 
     def run(self):
         if not self.process_callback:
@@ -114,18 +132,24 @@ class GenGo:
         if not self.fitness_callback:
             raise Exception('Cannot run without fitness function')
 
+        # call initialization callback and reset population size
         self.current_individuals = self.initialize_callback()
-        while not self.terminate_callback(self.current_individuals):
-            print("Generation: ", self.current_generation)
+        self.population_size = len(self.current_individuals)
 
+        # initial generation print
+        if self.print_generation_info:
+            self.__print_generation_info__()
+
+        while not self.terminate_callback(self.current_individuals):
             # perform process callback
             self.__run_process_callback__()
 
             # perform fitness callbacks
             self.__run_fitness_callback__()
 
-            # sort generation based on fitness value
-            self.current_individuals = self.generate_fitness_sorted(self.current_individuals)
+            # print generation info
+            if self.print_generation_info:
+                self.__print_generation_info__()
 
             # perform generation selection
             self.current_individuals = self.select_generation_callback(self.current_individuals)
@@ -133,4 +157,5 @@ class GenGo:
             # perform parent selection and crossover
             self.current_individuals = self.__run_create_next_generation__()
 
+            # increment generation count
             self.current_generation += 1

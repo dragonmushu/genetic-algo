@@ -41,3 +41,12 @@ class Individual:
     def clear_metrics(self):
         self.metrics = {}
 
+    def __str__(self):
+        score = "Fitness Score: " + str(self.fitness) + "\n"
+        chromosome = "Chromosome: " + str(self.chromosome) + "\n"
+        parent1 = ""
+        parent2 = ""
+        if self.parent1 and self.parent2:
+            parent1 = "Parent 1 Chromosomes: " + str(self.parent1.chromosome) + "\n"
+            parent2 = "Parent 2 Chromosome: " + str(self.parent2.chromosome) + "\n"
+        return score + chromosome + parent1 + parent2

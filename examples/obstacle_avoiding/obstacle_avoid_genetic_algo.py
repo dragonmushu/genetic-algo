@@ -6,6 +6,7 @@ from examples.obstacle_avoiding.obstacle_avoid_gui import setup_gui
 
 generation = 0  # generation number
 
+
 # processing functions
 def process_generation(individuals):
     # initial setup of players

@@ -131,7 +131,6 @@ def run_main_loop(players, window=None, frame=None):
         if not players:
             if window is not None:
                 window.destroy()
-            print(total_time)
             return
 
         # update gui if window created
