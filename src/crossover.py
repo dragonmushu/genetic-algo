@@ -1,3 +1,4 @@
+from typing import Tuple
 import random
 import src.utils as utils
 
@@ -6,29 +7,29 @@ def cross_with_mask(val_1, val_2, mask):
     return utils.apply_mask(val_1, mask) | utils.apply_mask(val_2, ~mask)
 
 
-def create_offspring_from_mask(chromosome_1: int, chromosome_2: int, mask: int) -> tuple(int, int):
+def create_offspring_from_mask(chromosome_1: int, chromosome_2: int, mask: int) -> Tuple[int, int]:
     offspring_1 = cross_with_mask(chromosome_2, chromosome_1, mask)
     offspring_2 = cross_with_mask(chromosome_1, chromosome_2, mask)
     return offspring_1, offspring_2
 
 
-def point_cross_over(chromosome_1: int, chromosome_2: int, size: int, point: int) -> tuple(int, int):
+def point_cross_over(chromosome_1: int, chromosome_2: int, size: int, point: int) -> Tuple[int, int]:
     max_val = utils.max_binary_value(size)
     mask = utils.shift_bytes(max_val, point)
     return create_offspring_from_mask(chromosome_1, chromosome_2, mask)
 
 
-def single_point_cross_over(chromosome_1: int, chromosome_2: int, size: int) -> tuple(int, int):
+def single_point_cross_over(chromosome_1: int, chromosome_2: int, size: int) -> Tuple[int, int]:
     random_point = random.randint(1, size)
     return point_cross_over(chromosome_1, chromosome_2, size, random_point)
 
 
-def center_cross_over(chromosome_1: int, chromosome_2: int, size: int) -> tuple(int, int):
+def center_cross_over(chromosome_1: int, chromosome_2: int, size: int) -> Tuple[int, int]:
     center = int(size/2)
     return point_cross_over(chromosome_1, chromosome_2, size, center)
 
 
-def junction_cross_over(chromosome_1: int, chromosome_2: int, size: int, point_1: int, point_2: int) -> tuple(int, int):
+def junction_cross_over(chromosome_1: int, chromosome_2: int, size: int, point_1: int, point_2: int) -> Tuple[int, int]:
     max_val = utils.max_binary_value(size)
     mask_1 = utils.shift_bytes(max_val, point_1)
     mask_2 = utils.shift_bytes(max_val, point_2)
@@ -36,13 +37,13 @@ def junction_cross_over(chromosome_1: int, chromosome_2: int, size: int, point_1
     return create_offspring_from_mask(chromosome_1, chromosome_2, mask)
 
 
-def random_junction_cross_over(chromosome_1: int, chromosome_2: int, size: int) -> tuple(int, int):
+def random_junction_cross_over(chromosome_1: int, chromosome_2: int, size: int) -> Tuple[int, int]:
     point_1 = random.randint(0, size + 1)
     point_2 = random.randint(0, size + 1)
     return junction_cross_over(chromosome_1, chromosome_2, size, point_1, point_2)
 
 
-def uniform_cross_over(chromosome_1: int, chromosome_2: int, size: int, probability: float) -> tuple(int, int):
+def uniform_cross_over(chromosome_1: int, chromosome_2: int, size: int, probability: float) -> Tuple[int, int]:
     mask_bits = ""
     for i in range(0, size):
         if random.random() < probability:
@@ -53,6 +54,6 @@ def uniform_cross_over(chromosome_1: int, chromosome_2: int, size: int, probabil
     return create_offspring_from_mask(chromosome_1, chromosome_2, mask)
 
 
-def random_probability_uniform_cross_over(chromosome_1: int, chromosome_2: int, size: int) -> tuple(int, int):
+def random_probability_uniform_cross_over(chromosome_1: int, chromosome_2: int, size: int) -> Tuple[int, int]:
     probability = random.random()
     return uniform_cross_over(chromosome_1, chromosome_2, size, probability)
