@@ -1,4 +1,5 @@
 from typing import Tuple
+
 import random
 import src.utils as utils
 
@@ -57,3 +58,4 @@ def uniform_cross_over(chromosome_1: int, chromosome_2: int, size: int, probabil
 def random_probability_uniform_cross_over(chromosome_1: int, chromosome_2: int, size: int) -> Tuple[int, int]:
     probability = random.random()
     return uniform_cross_over(chromosome_1, chromosome_2, size, probability)
+

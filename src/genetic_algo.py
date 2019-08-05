@@ -1,72 +1,133 @@
+from typing import Callable, List, Tuple
+
 import src.crossover as crossover
 import src.utils as utils
+from src.gengo_types import ProcessTypes, UserCallbackTypes
 from src.individual import Individual
 from src.chromosome import generate_random_chromosome
-from src.process_types import ProcessTypes
+from src.selection import RouletteWheel
 
 
 class GenGo:
-    def __init__(self, chromosome_size=10, population_size=100, population_cutoff=0.5, iterations=100,
+    """
+    Genetic Algorithm. User specifies values to optimize and the algorithms undergoes steps of
+    evolutionary algorithm
+
+    Attributes:
+        chromosome_size: size of the chromosome in number of bits (bits to optimize)
+        population_size: Fixed population size for each generation
+        iterations: Number of iterations algorithm undergoes before termination. Overriden with user defined termination
+        print_generation_info: boolean to print information of each generation
+        current_generation: The current generation number
+
+        initialize_callback: function called once during the start of the genetic algorithm
+        process_callback: function to process generation called every iteration. User defined function is mandatory.
+        fitness_callback: function called after process function. User defined function is mandatory.
+        select_parents_callback: function to choose parents to mate
+        crossover_callback: function to cross parents to produce offspring
+        terminate_callback: function to terminate evolutionary algorithm
+        user_defined_callbacks: dictionary of callbacks that users can add other than normal functions in GenGo
+    """
+
+    def __init__(self, chromosome_size=10, population_size=100, iterations=100,
                  print_generation_info=True):
         self.chromosome_size = chromosome_size
         self.population_size = population_size
-        self.population_cutoff = population_cutoff
         self.iterations = iterations
+        self.print_generation_info = print_generation_info
         self.current_generation = 0
         self.current_individuals = []
-        self.print_generation_info = print_generation_info
 
         self.initialize_callback = self.__default_initialize__
         self.process_callback = None
         self.fitness_callback = None
-        self.select_generation_callback = self.__default_select_generation__
-        self.select_parents_callback = self.__default_select_parents__
+        self.select_parents_callback = RouletteWheel.select_parents
         self.crossover_callback = self.__default_crossover__
+        self.mutate_callback = None  # TODO: Create default mutate callbacks
         self.terminate_callback = self.__default_terminate__
+        self.user_defined_callbacks = dict((i, []) for i in range(0, UserCallbackTypes.ITERATION_END + 1))
 
-    def initialize(self, callback):
+    def initialize(self, callback: Callable[[None], List[Individual]]):
+        """
+        Initialize function called at start of the genetic algorithm.
+        Defaulted to creating list[population_size] of random individuals.
+
+        :param callback: Function to call during initialization step
+        :return: self
+        """
         self.initialize_callback = callback
         return self
 
-    def process_individual(self, callback):
-        self.process_callback = (callback, ProcessTypes.INDIVIDUAL)
+    def process(self, callback: Callable[[List[Individual]], None], batch_size=1):
+        """
+        Process function called every iteration of algorithm to process individuals.
+        Mandatory function needs to be passed in.
+        User can specify batch processing or individual processing. Throws error if batch size is invalid
+
+        :param callback: Function to call during processing step
+        :param batch_size: Number of individuals to process at same time
+        :return: self
+        """
+        if batch_size == 1:
+            self.process_callback = (callback, ProcessTypes.INDIVIDUAL)
+        elif 1 < batch_size <= self.population_size:
+            self.process_callback = (callback, ProcessTypes.BATCH)
+        else:
+            pass  # TODO: Throw error if batch size is not within limits
         return self
 
-    def process_batch(self, callback):
-        self.process_callback = (callback, ProcessTypes.BATCH)
-        return self
+    def fitness(self, callback: Callable[[Individual], float]):
+        """
+        Fitness function called after processing individuals.
+        Mandatory function needs to be passed in.
 
-    def fitness(self, callback):
+        :param callback: Function to call during fitness step
+        :return: self
+        """
         self.fitness_callback = callback
         return self
 
-    def select_generation(self, callback):
-        self.select_generation_callback = callback
-        return self
+    def select_parents(self, callback: Callable[[List[Individual]], Tuple[Individual, Individual]]):
+        """
+        Select parents function to determine ancestors of next generation. This is part of the elitism step.
+        TODO: Function is defaulted to Roulette Wheel Selection
 
-    def select_parents(self, callback):
+        :param callback: Function to call during parent selection step
+        :return: self
+        """
         self.select_parents_callback = callback
         return self
 
-    def cross_over(self, callback):
+    def cross_over(self, callback: Callable[[Tuple[Individual, Individual]], Tuple[...]]):
+        """
+        Cross over function to determine progeny from parents. This is part of the elitism step.
+        TODO: Function is defaulted to single point cross over
+
+        :param callback: Function to call during cross over steo
+        :return: self
+        """
         self.crossover_callback = callback
         return self
 
+    # TODO: Create mutate algorithms
+    def mutate(self, callback: Callable[[Individual], Individual]):
+        self.mutate_callback = callback
+        return self
+
+    # TODO: Terminate callback will get reference to self as parameter (Add Typing)
     def terminate(self, callback):
         self.terminate_callback = callback
+        return self
+
+    # TODO: Callbacks will get reference to self as parameter (Add Typing)
+    def add_callback(self, callback, callback_type):
+        self.user_defined_callbacks[callback_type].append(callback)
         return self
 
     def __default_initialize__(self):
         individuals = [Individual(self.chromosome_size, generate_random_chromosome(self.chromosome_size))
                        for _ in range(self.population_size)]
         return individuals
-
-    def __default_select_generation__(self, individuals):
-        individuals = self.generate_fitness_sorted(self.current_individuals)
-        return individuals[int(len(individuals)*self.population_cutoff) + 1:]
-
-    def __default_select_parents__(self, individuals):
-        return utils.random_two_elements(individuals)
 
     def __default_crossover__(self, individual_1, individual_2):
         return crossover.center_cross_over(individual_1.chromosome, individual_2.chromosome, self.chromosome_size)

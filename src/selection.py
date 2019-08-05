@@ -51,20 +51,22 @@ class RouletteWheel(Selection):
         return parent_1, parent_2
 
 
-'''
-Stochastic Remainder Selection
-
-Selection based on having individuals have fixed number of progeny they can create.
-The integer value of normalized fitness (fitness / avg) represents definite progeny.
-The remainder goes through Roulette wheel selection until population limit is reached.
-
-The number of children produced per parent has to be fixed for this algorithm
-'''
 class StochasticRemainder(Selection):
+    """
+    Stochastic Remainder Selection
+
+    Selection based on having individuals have fixed number of progeny they can create.
+    The integer value of normalized fitness (fitness / avg) represents definite progeny.
+    The remainder goes through Roulette wheel selection until population limit is reached.
+
+    The number of children produced per parent has to be fixed for this algorithm
+    """
+
     def __init__(self, total_population: int, fraction_fixed_progeny: float, children_per_parent=2):
         self.definite_parents = {}
         self.total_population = total_population
-        self.fraction_fixed_progeny = fraction_fixed_progeny # scaling operation used for number of fixed progeny (estimation)
+        # scaling operation used for number of fixed progeny (estimation)
+        self.fraction_fixed_progeny = fraction_fixed_progeny
         self.children_per_parent = children_per_parent
         self.individuals = []  # need to store copy of individuals passed in
 
