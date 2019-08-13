@@ -35,7 +35,7 @@ class RouletteWheel(Selection):
     def create_probability_distribution(values: List[int]) -> List[int]:
         if not values:
             raise ValueError('List of values must not be empty')
-        total = sum(values)
+        total = sum(values)  # TODO: probability of fitness equal to 0. Default to random selection if this is the case
         probability_distribution = [values[0] / total]
         for i in range(1, len(values)):
             values[i] += values[i - 1]

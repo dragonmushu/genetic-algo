@@ -19,8 +19,7 @@ class UserCallbackTypes(Enum):
 
 class GenGo:
     """
-    Genetic Algorithm. User specifies values to optimize and the algorithms undergoes steps of
-    evolutionary algorithm
+    Genetic Algorithm. An evolutionary framework that allows user to optimize parameters of a problem.
 
     Attributes:
         chromosome_size: size of the chromosome in number of bits (bits to optimize)
@@ -57,7 +56,7 @@ class GenGo:
         self.crossover_callback = SinglePointCross.crossover
         self.mutate_callback = None  # TODO: Create default mutate callbacks
         self.terminate_callback = self.__default_terminate__
-        self.user_defined_callbacks = dict((i, []) for i in range(0, UserCallbackTypes.ITERATION_END + 1))
+        self.user_defined_callbacks = dict((data, []) for data in UserCallbackTypes)
 
     def initialize(self, callback: Callable[['GenGo'], List[Individual]]):
         """
@@ -182,10 +181,10 @@ class GenGo:
     def __print_generation_info__(self):
         print("Generation: ", self.current_generation)
         print("Max Fit Individual: ")
-        max_fitness_individual = max(self.individuals, key=lambda individual: individual.fitness)
+        max_fitness_individual = max(self.current_individuals, key=lambda individual: individual.fitness)
         print(max_fitness_individual)
         print("Min Fit Individual: ")
-        min_fitness_individual = min(self.individuals, key=lambda individual: individual.fitness)
+        min_fitness_individual = min(self.current_individuals, key=lambda individual: individual.fitness)
         print(min_fitness_individual)
         print("\n")
 
@@ -210,7 +209,7 @@ class GenGo:
         if self.print_generation_info:
             self.__print_generation_info__()
 
-        while not self.terminate_callback(self.current_individuals):
+        while not self.terminate_callback(self):
             # perform user defined callbacks ITERATION_START
             self.perform_user_defined_callback(UserCallbackTypes.ITERATION_START)
 
