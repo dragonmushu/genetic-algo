@@ -6,6 +6,7 @@ from src.individual import Individual
 from src.chromosome import generate_random_chromosome
 from src.selection import RouletteWheel
 from src.crossover import SinglePointCross
+from src.mutation import FlipMutation
 
 
 class UserCallbackTypes(Enum):
@@ -54,7 +55,9 @@ class GenGo:
         self.fitness_callback = None
         self.select_parents_callback = RouletteWheel.select_parents
         self.crossover_callback = SinglePointCross.crossover
-        self.mutate_callback = None  # TODO: Create default mutate callbacks
+        #  TODO: allow users to specify mutation rate for flip
+        flip_mutation = FlipMutation(chromosome_size=chromosome_size)
+        self.mutate_callback = flip_mutation.mutate
         self.terminate_callback = self.__default_terminate__
         self.user_defined_callbacks = dict((data, []) for data in UserCallbackTypes)
 
@@ -117,10 +120,10 @@ class GenGo:
         self.crossover_callback = callback
         return self
 
-    # TODO: Create mutate algorithms
-    def mutate(self, callback: Callable[[Individual], Individual]):
+    def mutate(self, callback: Callable[[int], int]):
         """
-        Mutation function to mutate individuals based on a mutation rate
+        Mutation function to mutate individuals based on a mutation rate.
+        Defaulted to Flip Mutation
 
         :param callback: Function to call during mutation step
         :return: self
@@ -153,19 +156,28 @@ class GenGo:
     def __create_next_generation__(self):
         next_generation = []
         while len(next_generation) != self.population_size:
+
+            #  select parents
             parents = self.select_parents_callback(self.current_individuals)
             if len(parents) != 2:
                 raise Exception('Parent selection must return two individuals')
+
+            #  create progeny
             chromosomes = self.crossover_callback(*parents)
             current_index = 0
+
             while current_index < len(chromosomes) and len(next_generation) != self.population_size:
-                chromosome = chromosomes[current_index]
+                #  mutation (defaulted to flip mutation)
+                chromosome = self.mutate_callback(chromosomes[current_index])
                 if not 0 <= chromosome <= utils.max_binary_value(self.chromosome_size):
                     raise Exception('Chromosomes generated must be between within max chromosome value')
+
+                #  create individual
                 individual = Individual(self.chromosome_size, chromosome)
                 individual.set_parents(*parents)
                 next_generation.append(individual)
                 current_index += 1
+
         return next_generation
 
     @staticmethod
@@ -203,7 +215,7 @@ class GenGo:
 
         # call initialization callback and reset population size
         self.current_individuals = self.initialize_callback(self)
-        self.population_size = len(self.current_individuals)  # TODO: Automatically changes population size
+        self.population_size = len(self.current_individuals)
 
         # initial generation print
         if self.print_generation_info:
@@ -238,8 +250,6 @@ class GenGo:
 
             # perform user defined callbacks AFTER_ELITISM
             self.perform_user_defined_callback(UserCallbackTypes.AFTER_ELITISM)
-
-            # TODO: Mutation callbacks, user defined callback after mutation and iteration end
 
             # increment generation count
             self.current_generation += 1

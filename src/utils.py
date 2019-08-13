@@ -20,6 +20,22 @@ def bit_set(val, position):
     return temp & val != 0
 
 
+def set_bit(val, position):
+    temp = 1 << (position - 1)
+    return temp | val
+
+
+def unset_bit(val, position):
+    temp = 1 << (position - 1)
+    return (~temp) & val
+
+
+def flip_bit(val, position):
+    if bit_set(val, position):
+        return unset_bit(val, position)
+    return set_bit(val, position)
+
+
 def random_two_elements(elements):
     if len(elements) < 2:
         raise Exception('List size less than two')

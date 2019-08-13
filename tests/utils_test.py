@@ -65,6 +65,53 @@ class TestUtils(unittest.TestCase):
         position = 2
         self.assertFalse(utils.bit_set(chromosome, position))
 
+    def test_set_bit_all_zero(self):
+        chromosome = 0
+        position = 1
+        self.assertEqual(1, utils.set_bit(chromosome, position))
+
+    def test_set_bit_final(self):
+        chromosome = 7  # 0111
+        position = 4
+        expected = 15  # 1111
+        self.assertEqual(expected, utils.set_bit(chromosome, position))
+
+    def test_set_bit_already_set(self):
+        chromosome = 7
+        position = 3
+        expected = 7
+        self.assertEqual(expected, utils.set_bit(chromosome, position))
+
+    def test_unset_bit_initial(self):
+        chromosome = 1
+        position = 1
+        expected = 0
+        self.assertEqual(expected, utils.unset_bit(chromosome, position))
+
+    def test_unset_bit_final(self):
+        chromosome = 7
+        position = 3
+        expected = 3
+        self.assertEqual(expected, utils.unset_bit(chromosome, position))
+
+    def test_unset_bit_already_unset(self):
+        chromosome = 5  # 101
+        position = 2
+        expected = 5
+        self.assertEqual(expected, utils.unset_bit(chromosome, position))
+
+    def test_flip_bit_initial_val(self):
+        chromosome = 6  # 110
+        position = 1
+        expected = 7  # 111
+        self.assertEqual(expected, utils.flip_bit(chromosome, position))
+
+    def test_flip_bit_final_val(self):
+        chromosome = 7
+        position = 3
+        expected = 3
+        self.assertEqual(expected, utils.flip_bit(chromosome, position))
+
 
 if __name__ == '__main__':
     unittest.main()
