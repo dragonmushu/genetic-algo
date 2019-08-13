@@ -1,7 +1,7 @@
 import unittest
 
-from src.crossover import point_cross_over
-from src.crossover import center_cross_over
+from src.crossover import point_cross_over, CenterCross
+from src.individual import Individual
 import src.utils as utils
 
 
@@ -92,23 +92,28 @@ class TestCrossOver(unittest.TestCase):
         size = 4
         chromosome_1 = int('1010', 2)
         chromosome_2 = int('1100', 2)
+        individual_1 = Individual(chromosome_size=size, chromosome=chromosome_1)
+        individual_2 = Individual(chromosome_size=size, chromosome=chromosome_2)
+
         expected_1 = int('1000', 2)
         expected_2 = int('1110', 2)
 
-        individual_1, individual_2 = center_cross_over(chromosome_1, chromosome_2, size)
-        self.assertEqual(individual_2, expected_2)
-        self.assertEqual(individual_1, expected_1)
+        cross_1, cross_2 = CenterCross.crossover(individual_1, individual_2)
+        self.assertEqual(cross_2, expected_2)
+        self.assertEqual(cross_1, expected_1)
 
     def test_center_cross_over_uneven(self):
         size = 5
         chromosome_1 = int('10001', 2)
         chromosome_2 = int('11100', 2)
+        individual_1 = Individual(chromosome_size=size, chromosome=chromosome_1)
+        individual_2 = Individual(chromosome_size=size, chromosome=chromosome_2)
         expected_1 = int('10100', 2)
         expected_2 = int('11001', 2)
 
-        individual_1, individual_2 = center_cross_over(chromosome_1, chromosome_2, size)
-        self.assertEqual(individual_2, expected_2)
-        self.assertEqual(individual_1, expected_1)
+        cross_1, cross_2 = CenterCross.crossover(individual_1, individual_2)
+        self.assertEqual(cross_2, expected_2)
+        self.assertEqual(cross_1, expected_1)
 
 
 if __name__ == '__main__':

@@ -49,7 +49,7 @@ class CrossOver(ABC):
 
 class SinglePointCross(CrossOver):
     @staticmethod
-    def crossover(self, individual_1: Individual, individual_2: Individual) -> Tuple[int, int]:
+    def crossover(individual_1: Individual, individual_2: Individual) -> Tuple[int, int]:
         size = individual_1.chromosome_size
         random_point = random.randint(1, size)
         return point_cross_over(individual_1.chromosome, individual_2.chromosome, size, random_point)
@@ -57,7 +57,7 @@ class SinglePointCross(CrossOver):
 
 class CenterCross(CrossOver):
     @staticmethod
-    def crossover(self, individual_1: Individual, individual_2: Individual) -> Tuple[int, int]:
+    def crossover(individual_1: Individual, individual_2: Individual) -> Tuple[int, int]:
         size = individual_1.chromosome_size
         center = int(size / 2)
         return point_cross_over(individual_1.chromosome, individual_2.chromosome, size, center)
@@ -65,7 +65,7 @@ class CenterCross(CrossOver):
 
 class RandomUniformCross(CrossOver):
     @staticmethod
-    def crossover(self, individual_1: Individual, individual_2: Individual) -> Tuple[int, int]:
+    def crossover(individual_1: Individual, individual_2: Individual) -> Tuple[int, int]:
         probability = random.random()
         size = individual_1.chromosome_size
         return uniform_cross_over(individual_1.chromosome, individual_2.chromosome, size, probability)
@@ -73,7 +73,7 @@ class RandomUniformCross(CrossOver):
 
 class RandomJunctionCross(CrossOver):
     @staticmethod
-    def crossover(self, individual_1: Individual, individual_2: Individual) -> Tuple[int, int]:
+    def crossover(individual_1: Individual, individual_2: Individual) -> Tuple[int, int]:
         size = individual_1.chromosome_size
         point_1 = random.randint(0, size + 1)
         point_2 = random.randint(0, size + 1)

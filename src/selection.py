@@ -13,41 +13,49 @@ class Selection(ABC):
 
 class RandomSelection(Selection):
     @staticmethod
-    def select_parents(self, individuals: List[Individual]) -> Tuple[Individual, Individual]:
+    def select_parents(individuals: List[Individual]) -> Tuple[Individual, Individual]:
         return random.sample(individuals, 2)
 
 
 class RouletteWheel(Selection):
     # TODO: implement binary search for finding individual in roulette probability list
-    def binary_search(self, values: List[int], target: int):
+    @staticmethod
+    def binary_search(values: List[float], target: float) -> int:
         pass
 
-    # TODO: Extract this function to utils (common probability distribution)
+    @staticmethod
+    def linear_search(values: List[float], target: float) -> int:
+        index = 0
+        # TODO: Change to binary search
+        while target > values[index]:
+            index += 1
+        return index
+
     @staticmethod
     def create_probability_distribution(values: List[int]) -> List[int]:
+        if not values:
+            raise ValueError('List of values must not be empty')
         total = sum(values)
         probability_distribution = [values[0] / total]
         for i in range(1, len(values)):
-            probability_distribution.append((values[i - 1] + values[i]) / total)
+            values[i] += values[i - 1]
+            probability_distribution.append(values[i] / total)
         return probability_distribution
 
     @staticmethod
-    def select_single_parent(self, individuals: List[Individual]) -> Individual:
+    def select_single_parent(individuals: List[Individual]) -> Individual:
         fitness_values = [individual.fitness for individual in individuals]
-        probability_distribution = self.create_probability_distribution(fitness_values)
+        probability_distribution = RouletteWheel.create_probability_distribution(fitness_values)
         probability = random.random()
-        index = 0
-        # TODO: Change to binary search
-        while probability > probability_distribution[index]:
-            index += 1
+        index = RouletteWheel.linear_search(probability_distribution, probability)
         return individuals[index]
 
     @staticmethod
-    def select_parents(self, individuals: List[Individual]) -> Tuple[Individual, Individual]:
+    def select_parents(individuals: List[Individual]) -> Tuple[Individual, Individual]:
         individuals_temp = individuals.copy()
-        parent_1 = self.select_single_parent(individuals_temp)
+        parent_1 = RouletteWheel.select_single_parent(individuals_temp)
         individuals_temp.remove(parent_1)
-        parent_2 = self.select_single_parent(individuals_temp)
+        parent_2 = RouletteWheel.select_single_parent(individuals_temp)
         return parent_1, parent_2
 
 
