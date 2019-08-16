@@ -15,10 +15,12 @@ If the pointer is activated the box will move in a certain direction
 
 angle: 180 (8 bits) val/255*180
 length: 40-150 (7 bits) val/127*110 + 40
+
+The next two contain combination of pointers
 speed: 0-15 (4 bits)
 direction: 0-1 (1 bit)
 
-3 pointers: 3*(8 + 7 + 3 + 1) = 57
+3 pointers: 3*(8 + 7) + 7*(4 + 1) = 80
 Player dies when an obstacle hits it
 '''
 
@@ -33,10 +35,10 @@ def parse_genes(individual):
                                      (i + 1) * LENGTH_GENE_SIZE - 1) for i in range(0, PLAYER_POINTERS)]
     current_gene += PLAYER_POINTERS * LENGTH_GENE_SIZE
     speeds = [individual.gene_value(current_gene + i * SPEED_GENE_SIZE, current_gene +
-                                    (i + 1) * SPEED_GENE_SIZE - 1) for i in range(0, PLAYER_POINTERS)]
+                                    (i + 1) * SPEED_GENE_SIZE - 1) for i in range(0, POINTER_COMBINATIONS)]
     current_gene += PLAYER_POINTERS * SPEED_GENE_SIZE
     directions = [individual.gene_value(current_gene + i * DIRECTION_GENE_SIZE, current_gene +
-                                        (i + 1) * DIRECTION_GENE_SIZE - 1) for i in range(0, PLAYER_POINTERS)]
+                                        (i + 1) * DIRECTION_GENE_SIZE - 1) for i in range(0, POINTER_COMBINATIONS)]
     return angles, lengths, speeds, directions
 
 
@@ -79,7 +81,7 @@ def check_and_update_players(players, obstacle, total_time, frame=None):
         if player.check_hit_wall() or player.check_hit_obstacle(obstacle):
             if frame is not None:
                 player.delete_gui_object(frame)
-            player.individual.add_metric("time", total_time)
+            player.individual.add_metric("time", total_time, average=True)
         else:
             new_players.append(player)
     return new_players

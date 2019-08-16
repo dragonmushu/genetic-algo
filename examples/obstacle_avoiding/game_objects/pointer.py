@@ -7,28 +7,25 @@ from examples.obstacle_avoiding.obstace_avoid_constants import *
 
 
 class Pointer(GameObject):
-    def __init__(self, angle, length, speed, direction):
+    def __init__(self, angle, length):
         self.angle = math.radians(angle/255*180)
         self.length = length/127*110 + 40
         x1 = FRAME_WIDTH/2
         y1 = FRAME_HEIGHT - PLAYER_HEIGHT/2
         GameObject.__init__(self, x1, y1, x1 - self.length * math.cos(self.angle),
                             y1 - self.length * math.sin(self.angle))
-        self.speed = speed
-        self.speed_influence = 0
-        self.direction = direction * -2 + 1
+
         self.color = "green"
 
     def update(self, delta, total_speed):
         self.previous_x = self.current_x
         self.current_x += total_speed*delta
 
-    def update_influence(self, rectangles):
-        self.speed_influence = 0
+    def update_pointer_hit(self, rectangles):
         self.color = "green"
         if self.check_pointer_hit_walls() or self.check_pointer_hit_rectangle(rectangles):
             self.color = "red"
-            self.speed_influence = self.direction * self.speed * SPEED_FACTOR
+            return True
 
     def check_pointer_hit_rectangle(self, rectangles):
         pointer_const = [self.current_x, self.current_y]

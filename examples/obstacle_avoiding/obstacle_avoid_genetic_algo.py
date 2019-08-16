@@ -5,22 +5,25 @@ from examples.obstacle_avoiding.obstacle_avoid import setup_players, run_main_lo
 from examples.obstacle_avoiding.obstacle_avoid_gui import setup_gui
 
 generation = 0  # generation number
-population_size = 10
+population_size = 100
 
 
 # processing functions
+# loop the processing three times to get an average
 def process_generation(individuals):
-    # initial setup of players
-    players = setup_players(individuals)
-    run_main_loop(players)
+    for _ in range(0, 3):
+        # initial setup of players
+        players = setup_players(individuals)
+        run_main_loop(players)
 
 
 def process_generation_gui(individuals):
-    # initial setup of players
-    window, frame = setup_gui()
-    players = setup_players(individuals, frame=frame)
-    run_main_loop(players, window=window, frame=frame)
+    for _ in range(0, 3):
+        # initial setup of players
+        window, frame = setup_gui()
+        players = setup_players(individuals, frame=frame)
+        run_main_loop(players, window=window, frame=frame)
 
 
 gengo = GenGo(chromosome_size=PLAYER_CHROMOSOME_LENGTH, population_size=population_size)
-gengo.process(process_generation_gui, batch_size=10).fitness(lambda individual: individual.get_metric("time")).run()
+gengo.process(process_generation, batch_size=100).fitness(lambda individual: individual.get_metric("time")).run()
