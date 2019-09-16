@@ -5,7 +5,7 @@ from examples.obstacle_avoiding.obstacle_avoid import setup_players, run_main_lo
 from examples.obstacle_avoiding.obstacle_avoid_gui import setup_gui
 
 generation = 0  # generation number
-population_size = 100
+population_size = 10
 
 
 # processing functions
@@ -26,4 +26,4 @@ def process_generation_gui(individuals):
 
 
 gengo = GenGo(chromosome_size=PLAYER_CHROMOSOME_LENGTH, population_size=population_size)
-gengo.process(process_generation, batch_size=100).fitness(lambda individual: individual.get_metric("time")).run()
+gengo.process(process_generation_gui, batch_size=10).fitness(lambda individual: individual.get_metric("time")).run()

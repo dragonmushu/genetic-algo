@@ -24,7 +24,9 @@ class Player(GameObject):
                 if pointer.update_pointer_hit(rectangles):
                     pointers_hit[index] = True
                 index += 1
-            self.current_speed += self.update_speed(pointers_hit)
+            next_speed = self.update_speed(pointers_hit)
+            if next_speed != -1:
+                self.current_speed = next_speed
             for pointer in self.pointers:
                 pointer.update(delta, self.current_speed)
             self.previous_x = self.current_x
@@ -45,7 +47,7 @@ class Player(GameObject):
             return self.directions[5] * self.speeds[5] * SPEED_FACTOR
         elif pointers_hit[2]:
             return self.directions[6] * self.speeds[6] * SPEED_FACTOR
-        return 0
+        return -1
 
     def create_gui_object(self, frame):
         for pointer in self.pointers:

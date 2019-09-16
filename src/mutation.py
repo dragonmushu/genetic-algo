@@ -12,7 +12,7 @@ class Mutation(ABC):
 
 
 class FlipMutation(Mutation):
-    def __init__(self, chromosome_size, mutation_rate=0.02):
+    def __init__(self, chromosome_size, mutation_rate=0.001):
         self.mutation_rate = mutation_rate
         self.chromosome_size = chromosome_size
 

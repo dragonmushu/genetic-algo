@@ -1,3 +1,4 @@
+import numpy as np
 from typing import Callable, List, Tuple
 
 import src.utils as utils
@@ -49,7 +50,9 @@ class GenGo:
         self.current_generation = 0
         self.process_batch_size = 1
         self.current_individuals = []
+        self.generational_information = []
 
+        self.setup_callback = None
         self.initialize_callback = self.__default_initialize__
         self.process_callback = None
         self.fitness_callback = None
@@ -60,6 +63,17 @@ class GenGo:
         self.mutate_callback = flip_mutation.mutate
         self.terminate_callback = self.__default_terminate__
         self.user_defined_callbacks = dict((data, []) for data in UserCallbackTypes)
+
+    def setup(self, callback: Callable[['GenGo'], List[Individual]]):
+        """
+        Setup function only called if user defined. Called before initial generation is created
+        to setup the application or process
+
+        :param callback: Function to call during setup step
+        :return: self
+        """
+        self.setup_callback = callback
+        return self
 
     def initialize(self, callback: Callable[['GenGo'], List[Individual]]):
         """
@@ -180,6 +194,10 @@ class GenGo:
 
         return next_generation
 
+    def __user_defined_callback__(self, callback_type:UserCallbackTypes):
+        for callback in self.user_defined_callbacks[callback_type]:
+            callback(self)
+
     @staticmethod
     def __default_initialize__(algorithm):
         individuals = [Individual(algorithm.chromosome_size, generate_random_chromosome(algorithm.chromosome_size))
@@ -191,18 +209,101 @@ class GenGo:
         return algorithm.current_generation == algorithm.iterations
 
     def __print_generation_info__(self):
-        print("Generation: ", self.current_generation)
+        information = self.generational_information[-1]
+        print("Generation: ", information['generation'])
         print("Max Fit Individual: ")
-        max_fitness_individual = max(self.current_individuals, key=lambda individual: individual.fitness)
-        print(max_fitness_individual)
+        print(information['max_fit_individual'])
         print("Min Fit Individual: ")
-        min_fitness_individual = min(self.current_individuals, key=lambda individual: individual.fitness)
-        print(min_fitness_individual)
+        print(information['min_fit_individual'])
+        print("Average Fitness: ", information['average_fitness'])
+        print("Standard Deviation Fitness: ", information['stdev_fitness'])
         print("\n")
 
-    def perform_user_defined_callback(self, callback_type:UserCallbackTypes):
-        for callback in self.user_defined_callbacks[callback_type]:
-            callback(self)
+    def generation_individuals(self, generation=0):
+        """
+        Allows users to obtain the individuals of a generation. Generation defaulted to initial generation
+
+        :param generation: The generation to obtain individuals
+        :return: the individuals of particular generation
+        """
+        return self.generational_information[generation]['individuals']
+
+    def max_fit_individual(self, generation=-1):
+        """
+        Obtains the most fit individual in generation pool. If no generation is passed current generation most fit
+        individual is returned. Generation number is defaulted to -1.
+
+        :param generation: The generation to obtain most fit individual
+        :return: most fit individual of generation
+        """
+        if generation < -1 or generation >= len(self.generational_information):
+            raise ValueError  # TODO: change to param error
+
+        if generation == -1:
+            return max(self.current_individuals, key=lambda individual: individual.fitness)
+        else:
+            return max(self.generation_individuals(generation), key=lambda individual: individual.fitness)
+
+    def min_fit_individual(self, generation=-1):
+        """
+        Obtains the least fit individual in generation pool. If no generation is passed current generation least fit
+        individual is returned. Generation number is defaulted to -1.
+
+        :param generation: The generation to obtain least fit individual
+        :return: least fit individual of generation
+        """
+        if generation < -1 or generation >= len(self.generational_information):
+            raise ValueError  # TODO: change to param error
+
+        if generation == -1:
+            return min(self.current_individuals, key=lambda individual: individual.fitness)
+        else:
+            return min(self.generation_individuals(generation), key=lambda individual: individual.fitness)
+
+    def average_generational_fitness(self, generation=-1):
+        """
+        Average fitness of generation. If no generation is passed current generation average fitness is calculated.
+        Generation number defaulted to -1
+
+        :param generation: The generation to calculate average fitness for
+        :return: average fitness of generation
+        """
+        if generation < -1 or generation >= len(self.generational_information):
+            raise ValueError  # TODO: change to param error
+
+        individual_fitness = []
+        if generation == -1:
+            individual_fitness = map(lambda individual: individual.fitness, self.current_individuals)
+        else:
+            individual_fitness = map(lambda individual: individual.fitness,
+                                     self.generation_individuals(generation))
+        return np.average(individual_fitness)
+
+    def stdev_generational_fitness(self, generation=-1):
+        """
+        Standard deviation fitness of generation. If no generation is passed current generation stdev fitness is calculated.
+        Generation number defaulted to -1
+
+        :param generation: The generation to calculate stdev fitness for
+        :return: stdev fitness of generation
+        """
+        if generation < -1 or generation >= len(self.generational_information):
+            raise ValueError  # TODO: change to param error
+
+        individual_fitness = []
+        if generation == -1:
+            individual_fitness = map(lambda individual: individual.fitness, self.current_individuals)
+        else:
+            individual_fitness = map(lambda individual: individual.fitness,
+                                     self.generation_individuals(generation))
+        return np.std(individual_fitness)
+
+    def __generate_generational_information__(self):
+        information = {'generation': self.current_generation, 'individuals': self.current_individuals,
+                       'min_fit_individual': self.min_fit_individual(), 'max_fit_individual': self.max_fit_individual(),
+                       'average_fitness': self.average_generational_fitness(),
+                       'stdev_fitness': self.stdev_generational_fitness()}
+        return information
 
     def run(self):
         if not self.process_callback:
@@ -213,17 +314,17 @@ class GenGo:
 
         # TODO: add exceptions if other functions are not initialized (should be defaulted by algorithm)
 
+        # call setup if user defined
+        if self.setup_callback:
+            self.setup_callback(self)
+
         # call initialization callback and reset population size
         self.current_individuals = self.initialize_callback(self)
         self.population_size = len(self.current_individuals)
 
-        # initial generation print
-        if self.print_generation_info:
-            self.__print_generation_info__()
-
         while not self.terminate_callback(self):
             # perform user defined callbacks ITERATION_START
-            self.perform_user_defined_callback(UserCallbackTypes.ITERATION_START)
+            self.__user_defined_callback__(UserCallbackTypes.ITERATION_START)
 
             # perform process callback
             index = 0
@@ -232,14 +333,17 @@ class GenGo:
                 index += self.process_batch_size
 
             # perform user defined callbacks AFTER_PROCESSING
-            self.perform_user_defined_callback(UserCallbackTypes.AFTER_PROCESSING)
+            self.__user_defined_callback__(UserCallbackTypes.AFTER_PROCESSING)
 
             # perform fitness callbacks
             for individual in self.current_individuals:
                 individual.fitness = self.fitness_callback(individual)
 
             # perform user defined callbacks AFTER_FITNESS
-            self.perform_user_defined_callback(UserCallbackTypes.AFTER_FITNESS)
+            self.__user_defined_callback__(UserCallbackTypes.AFTER_FITNESS)
+
+            # save generation information
+            self.__generate_generational_information__()
 
             # print generation info
             if self.print_generation_info:
@@ -249,7 +353,7 @@ class GenGo:
             self.current_individuals = self.__create_next_generation__()
 
             # perform user defined callbacks AFTER_ELITISM
-            self.perform_user_defined_callback(UserCallbackTypes.AFTER_ELITISM)
+            self.__user_defined_callback__(UserCallbackTypes.AFTER_ELITISM)
 
             # increment generation count
             self.current_generation += 1

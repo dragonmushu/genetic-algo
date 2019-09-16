@@ -17,10 +17,10 @@ angle: 180 (8 bits) val/255*180
 length: 40-150 (7 bits) val/127*110 + 40
 
 The next two contain combination of pointers
-speed: 0-15 (4 bits)
+speed: 0-31 (5 bits)
 direction: 0-1 (1 bit)
 
-3 pointers: 3*(8 + 7) + 7*(4 + 1) = 80
+3 pointers: 3*(8 + 7) + 7*(5 + 1) = 87
 Player dies when an obstacle hits it
 '''
 
