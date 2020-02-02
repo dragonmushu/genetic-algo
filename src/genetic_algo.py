@@ -273,10 +273,10 @@ class GenGo:
 
         individual_fitness = []
         if generation == -1:
-            individual_fitness = map(lambda individual: individual.fitness, self.current_individuals)
+            individual_fitness = list(map(lambda individual: individual.fitness, self.current_individuals))
         else:
-            individual_fitness = map(lambda individual: individual.fitness,
-                                     self.generation_individuals(generation))
+            individual_fitness = list(map(lambda individual: individual.fitness,
+                                          self.generation_individuals(generation)))
         return np.average(individual_fitness)
 
     def stdev_generational_fitness(self, generation=-1):
