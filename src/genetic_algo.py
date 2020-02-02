@@ -42,7 +42,7 @@ class GenGo:
     """
 
     def __init__(self, chromosome_size=10, population_size=100, iterations=100,
-                 print_generation_info=True):
+                 print_generation_info=False):
         self.chromosome_size = chromosome_size
         self.population_size = population_size
         self.iterations = iterations
